@@ -15,7 +15,7 @@ navigator.geolocation.getCurrentPosition((position) => {
       option.text = `${countryName} (Current Location)`;
       option.selected = true;
       countryList.appendChild(option);
-      // getCountryTime();
+      getCountryTime();
     })
     .catch((error) => console.error(error));
 });
@@ -65,7 +65,7 @@ async function getCountryTime() {
 
 getCountries();
 const countryList = document.getElementById("country-list");
-// countryList.addEventListener("change", getCountryTime);
+countryList.addEventListener("change", getCountryTime);
 
 function updateTime() {
   const now = new Date();
