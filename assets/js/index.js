@@ -15,7 +15,7 @@ const getUserCountry = () => {
       option.text = `${countryName} (Current Location)`;
       option.selected = true;
       countryList.appendChild(option);
-      // getCountryTime();
+      getCountryTime();
     })
     .catch((error) => console.log("error", error));
 };
@@ -105,26 +105,9 @@ async function getCountryTime() {
 }
 
 getCountries();
-const countryList = document.getElementById("country-list");
-countryList.addEventListener("change", getCountryTime);
-
-function updateTime() {
-  const now = new Date();
-  const hours = now.getHours().toString().padStart(2, "0");
-  const minutes = now.getMinutes().toString().padStart(2, "0");
-  const seconds = now.getSeconds().toString().padStart(2, "0");
-
-  const timeString = `${hours}:${minutes}:${seconds}`;
-  const timeElement = document.getElementById("country-time");
-  timeElement.textContent = `The current time in India is: ${timeString}`;
-}
-
-// Call updateTime() every second
-// setInterval(updateTime, 1000);
 
 const loader = document.querySelector("#loading");
 
-// showing loading
 function displayLoading() {
   loader.classList.add("display");
   setTimeout(() => {
