@@ -1,6 +1,8 @@
-const apiKey = "307bfd9b3eaf4008a85eb1936e92cef3";
+console.log(moment().utcOffset("UTC+02:00").format("YYYY-MM-DD HH:mm"));
 
-const openCageAPIAccesskey = "52dc705a7e4040afa92c814ed97ea038";
+const countryList = document.getElementById("country-list");
+
+const countryTimeDisplay = document.getElementById("country-time");
 
 const getUserCountry = () => {
   fetch("https://ipapi.co/json/")
@@ -8,54 +10,84 @@ const getUserCountry = () => {
       return response.json();
     })
     .then((result) => {
-      console.log(result);
       const countryName = result?.country_name;
+      const offset = result?.utc_offset;
+      console.log(offset);
       const option = document.createElement("option");
       option.value = countryName;
       option.text = `${countryName} (Current Location)`;
       option.selected = true;
-      countryList.appendChild(option);
-      getCountryTime();
     })
     .catch((error) => console.log("error", error));
 };
 
 getUserCountry();
 
-/*navigator.geolocation.getCurrentPosition((position) => {
-  const { latitude, longitude } = position.coords;
-  const url = `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${openCageAPIAccesskey}`;
-
-  fetch(url)
-    .then((response) => response.json())
-    .then((data) => {
-      const countryName = data.results[0].components.country;
-      const option = document.createElement("option");
-      option.value = countryName;
-      option.text = `${countryName} (Current Location)`;
-      option.selected = true;
-      countryList.appendChild(option);
-      getCountryTime();
-    })
-    .catch((error) => console.error(error));
-});*/
-
 async function getCountries() {
   const response = await fetch("https://restcountries.com/v3.1/all");
+
   const countries = await response.json();
 
-  console.log(countries);
-
-  const countryList = document.getElementById("country-list");
   countries.forEach((country) => {
     const option = document.createElement("option");
-    option.value = country.name.common;
-    option.text = country.name.common;
+    option.value = country?.timezones;
+    option.text = country?.name?.common;
     countryList.appendChild(option);
   });
 }
 
-async function getCountryTime() {
+function calcTime() {
+  const country = document.getElementById("country-list").value;
+
+  let result = country.slice(3, 6);
+
+  const d = new Date();
+  const utc = d.getTime() + d.getTimezoneOffset() * 60000;
+  console.log(utc);
+  const nd = new Date(utc + 3600000 * result);
+
+  const countryTime = new Date(nd);
+  const options = {
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+  };
+
+  const formatedDate = {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  };
+
+  const formattedTime = countryTime.toLocaleString("en-US", options);
+
+  const date = countryTime.toLocaleString("en-US", formatedDate);
+
+  const countryTimeDisplay = document.getElementById("country-time");
+
+  const dateDisplay = document.getElementById("formated-date");
+
+  countryTimeDisplay.innerHTML = `${formattedTime}`;
+  countryTimeDisplay.style.color = "#5F5F5F";
+  countryTimeDisplay.style.fontSize = "45px";
+
+  dateDisplay.innerHTML = `${date}`;
+  dateDisplay.style.color = "#000";
+  dateDisplay.style.fontSize = "25px";
+
+  console.log(`The current time of the country is ${nd.toLocaleString()}`);
+}
+
+countryList.addEventListener("change", function () {
+  displayLoading();
+  setTimeout(() => {
+    calcTime();
+    setInterval(calcTime, 1000);
+  }, 2000);
+});
+
+/*async function getCountryTime() {
   displayLoading();
   const country = document.getElementById("country-list").value;
   const url = `https://timezone.abstractapi.com/v1/current_time/?api_key=953eade75d464e09a0f84864e352f238&location=${country}`;
@@ -94,7 +126,7 @@ async function getCountryTime() {
       dateDisplay.innerHTML = `${date}`;
       dateDisplay.style.color = "#000";
       dateDisplay.style.fontSize = "25px";
-      
+
       hideLoading();
     } else {
       hideLoading();
@@ -102,17 +134,18 @@ async function getCountryTime() {
   } catch (error) {
     console.error(error);
   }
-}
+}*/
 
 getCountries();
 
 const loader = document.querySelector("#loading");
 
 function displayLoading() {
+  console.log("function called");
   loader.classList.add("display");
   setTimeout(() => {
     loader.classList.remove("display");
-  }, 5000);
+  }, 1000);
 }
 
 function hideLoading() {

@@ -62,6 +62,10 @@ header h1 {
   margin-left: 15px;
 }
 
+.clock-section .content img {
+  object-fit: contain;
+}
+
 .clock-section .select-wrapper {
   text-align: start;
 }
