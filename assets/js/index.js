@@ -1,8 +1,8 @@
-console.log(moment().utcOffset("UTC+02:00").format("YYYY-MM-DD HH:mm"));
-
 const countryList = document.getElementById("country-list");
 
 const countryTimeDisplay = document.getElementById("country-time");
+
+const dateDisplay = document.getElementById("formated-date");
 
 const getUserCountry = () => {
   fetch("https://ipapi.co/json/")
@@ -11,17 +11,14 @@ const getUserCountry = () => {
     })
     .then((result) => {
       const countryName = result?.country_name;
-      const offset = result?.utc_offset;
-      console.log(offset);
       const option = document.createElement("option");
       option.value = countryName;
       option.text = `${countryName} (Current Location)`;
       option.selected = true;
+      countryList.appendChild(option);
     })
     .catch((error) => console.log("error", error));
 };
-
-getUserCountry();
 
 async function getCountries() {
   const response = await fetch("https://restcountries.com/v3.1/all");
@@ -30,61 +27,64 @@ async function getCountries() {
 
   countries.forEach((country) => {
     const option = document.createElement("option");
-    option.value = country?.timezones;
+    option.value = country?.timezones[0];
     option.text = country?.name?.common;
     countryList.appendChild(option);
   });
+
+  getUserCountry();
 }
 
 function calcTime() {
-  const country = document.getElementById("country-list").value;
+  const timezone = document.getElementById("country-list").value;
 
-  let result = country.slice(3, 6);
+  let result = timezone.slice(3, 6);
+  if (result) {
+    const d = new Date();
 
-  const d = new Date();
-  const utc = d.getTime() + d.getTimezoneOffset() * 60000;
-  console.log(utc);
-  const nd = new Date(utc + 3600000 * result);
+    const utc = d.getTime() + d.getTimezoneOffset() * 60000;
 
-  const countryTime = new Date(nd);
-  const options = {
-    hour: "numeric",
-    minute: "numeric",
-    second: "numeric",
-  };
+    const nd = new Date(utc + 3600000 * result);
 
-  const formatedDate = {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  };
+    const countryTime = new Date(nd);
+    const options = {
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+    };
 
-  const formattedTime = countryTime.toLocaleString("en-US", options);
+    const formatedDate = {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    };
 
-  const date = countryTime.toLocaleString("en-US", formatedDate);
+    const formattedTime = countryTime.toLocaleString("en-US", options);
 
-  const countryTimeDisplay = document.getElementById("country-time");
+    const date = countryTime.toLocaleString("en-US", formatedDate);
 
-  const dateDisplay = document.getElementById("formated-date");
+    countryTimeDisplay.innerHTML = `${formattedTime}`;
+    countryTimeDisplay.style.color = "#5F5F5F";
+    countryTimeDisplay.style.fontSize = "45px";
 
-  countryTimeDisplay.innerHTML = `${formattedTime}`;
-  countryTimeDisplay.style.color = "#5F5F5F";
-  countryTimeDisplay.style.fontSize = "45px";
+    dateDisplay.innerHTML = `${date}`;
+    dateDisplay.style.color = "#000";
+    dateDisplay.style.fontSize = "25px";
 
-  dateDisplay.innerHTML = `${date}`;
-  dateDisplay.style.color = "#000";
-  dateDisplay.style.fontSize = "25px";
-
-  console.log(`The current time of the country is ${nd.toLocaleString()}`);
+    /*console.log(`The current time of the country is ${nd.toLocaleString()}`);*/
+  } else {
+    updateTime();
+  }
 }
 
 countryList.addEventListener("change", function () {
+  document.getElementById("default-time").style.display = "none";
+  document.getElementById("default-formated-date").style.display = "none";
   displayLoading();
   setTimeout(() => {
-    calcTime();
     setInterval(calcTime, 1000);
-  }, 2000);
+  }, 1000);
 });
 
 /*async function getCountryTime() {
@@ -141,7 +141,6 @@ getCountries();
 const loader = document.querySelector("#loading");
 
 function displayLoading() {
-  console.log("function called");
   loader.classList.add("display");
   setTimeout(() => {
     loader.classList.remove("display");
@@ -151,3 +150,38 @@ function displayLoading() {
 function hideLoading() {
   loader.classList.remove("display");
 }
+
+function updateTime() {
+  const countryTimeDisplay = document.getElementById("default-time");
+  const dateDisplay = document.getElementById("default-formated-date");
+
+  const now = new Date();
+  const hours = now.getHours();
+  const minutes = now.getMinutes().toString().padStart(2, "0");
+  const seconds = now.getSeconds().toString().padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
+  const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
+
+  const formattedTime = `${formattedHours}:${minutes}:${seconds} ${ampm}`;
+
+  countryTimeDisplay.innerHTML = `${formattedTime}`;
+  countryTimeDisplay.style.color = "#5F5F5F";
+  countryTimeDisplay.style.fontSize = "45px";
+
+  const options = {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  };
+
+  const formattedDate = now.toLocaleString("en-US", options);
+
+  dateDisplay.innerHTML = `${formattedDate}`;
+  dateDisplay.style.color = "#000";
+  dateDisplay.style.fontSize = "25px";
+}
+
+setInterval(updateTime, 1000);
+
+moment().utcOffset("UTC+02:00").format("YYYY-MM-DD HH:mm");
