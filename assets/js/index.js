@@ -24,6 +24,7 @@ async function getCountries() {
   const response = await fetch("https://restcountries.com/v3.1/all");
 
   const countries = await response.json();
+  console.log(countries);
 
   countries.forEach((country) => {
     const option = document.createElement("option");
@@ -38,20 +39,17 @@ async function getCountries() {
 function calcTime() {
   const timezone = document.getElementById("country-list").value;
 
-  let result = timezone.slice(3, 6);
-  if (result) {
-    const d = new Date();
+  if (timezone === "UTC") {
+    const date = new Date();
+    const countryTime = date.toUTCString(timezone);
 
-    const utc = d.getTime() + d.getTimezoneOffset() * 60000;
+    const modifiedDate = new Date(countryTime);
 
-    const nd = new Date(utc + 3600000 * result);
-
-    const countryTime = new Date(nd);
-    const options = {
-      hour: "numeric",
-      minute: "numeric",
-      second: "numeric",
-    };
+    countryTimeDisplay.innerHTML = `${modifiedDate.getUTCHours()}:${modifiedDate.getUTCMinutes()}:${modifiedDate.getUTCSeconds()} ${
+      modifiedDate.getUTCHours() >= 12 ? "PM" : "AM"
+    }`;
+    countryTimeDisplay.style.color = "#5F5F5F";
+    countryTimeDisplay.style.fontSize = "45px";
 
     const formatedDate = {
       weekday: "long",
@@ -60,21 +58,48 @@ function calcTime() {
       year: "numeric",
     };
 
-    const formattedTime = countryTime.toLocaleString("en-US", options);
-
-    const date = countryTime.toLocaleString("en-US", formatedDate);
-
-    countryTimeDisplay.innerHTML = `${formattedTime}`;
-    countryTimeDisplay.style.color = "#5F5F5F";
-    countryTimeDisplay.style.fontSize = "45px";
-
-    dateDisplay.innerHTML = `${date}`;
+    dateDisplay.innerHTML = new Intl.DateTimeFormat("en-US", formatedDate).format(modifiedDate);
     dateDisplay.style.color = "#000";
     dateDisplay.style.fontSize = "25px";
-
-    /*console.log(`The current time of the country is ${nd.toLocaleString()}`);*/
   } else {
-    updateTime();
+    let result = timezone.slice(3, 6);
+    if (result) {
+      const d = new Date();
+
+      const utc = d.getTime() + d.getTimezoneOffset() * 60000;
+
+      const nd = new Date(utc + 3600000 * result);
+
+      const countryTime = new Date(nd);
+      const options = {
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric",
+      };
+
+      const formatedDate = {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      };
+
+      const formattedTime = countryTime.toLocaleString("en-US", options);
+
+      const date = countryTime.toLocaleString("en-US", formatedDate);
+
+      countryTimeDisplay.innerHTML = `${formattedTime}`;
+      countryTimeDisplay.style.color = "#5F5F5F";
+      countryTimeDisplay.style.fontSize = "45px";
+
+      dateDisplay.innerHTML = `${date}`;
+      dateDisplay.style.color = "#000";
+      dateDisplay.style.fontSize = "25px";
+
+      /*console.log(`The current time of the country is ${nd.toLocaleString()}`);*/
+    } else {
+      updateTime();
+    }
   }
 }
 
