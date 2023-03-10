@@ -101,6 +101,10 @@ function calcTime() {
     dateDisplay.style.color = "#ffffff";
     dateDisplay.style.fontSize = "25px";
     dateDisplay.style.fontWeight = 700;
+  } else if (timezone === "") {
+    countryTimeDisplay.innerHTML = "Kindly select the location.";
+    countryTimeDisplay.style.fontSize = "25px";
+    dateDisplay.innerHTML = "";
   } else {
     let result = timezone.slice(3, 6);
     if (result) {
