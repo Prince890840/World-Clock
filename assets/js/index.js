@@ -28,16 +28,16 @@ const getUserCountry = () => {
 
 async function getCountries() {
   const response = await fetch("https://restcountries.com/v3.1/all");
+  if (response && response?.status === 200 && response?.statusText === "OK") {
+    const countries = await response.json();
 
-  const countries = await response.json();
-
-  countries.forEach((country) => {
-    const option = document.createElement("option");
-    option.value = country?.timezones[0];
-    option.text = country?.name?.common;
-    countryList.appendChild(option);
-  });
-
+    countries.forEach((country) => {
+      const option = document.createElement("option");
+      option.value = country?.timezones[0];
+      option.text = country?.name?.common;
+      countryList.appendChild(option);
+    });
+  }
   getUserCountry();
 }
 
