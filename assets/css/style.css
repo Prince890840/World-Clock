@@ -88,9 +88,17 @@ p {
 
 #country-time {
   margin-top: 0;
-  font-size: 25px;
-  font-weight: bold;
+  font-size: 45px;
+  font-weight: 700;
+  color: #ffffff;
 }
+
+#formated-date {
+  font-size: 25px;
+  color: #ffffff;
+  font-weight: 700;
+}
+
 #country-list {
   padding: 10px;
   font-size: 18px;
@@ -105,15 +113,15 @@ p {
 .select-wrapper:after {
   content: "\f078";
   font: normal normal normal 17px/1 FontAwesome;
-  color: #776D65;
+  color: #776d65;
   right: 0px;
   top: 7px;
   height: 46px;
   padding: 15px 20px 0px 20px;
-  border-left: 1px solid #E4E4E4;
+  border-left: 1px solid #e4e4e4;
   position: absolute;
   pointer-events: none;
-  background-color: #E4E4E4;
+  background-color: #e4e4e4;
 }
 
 select::-ms-expand {
@@ -132,7 +140,7 @@ select::-ms-expand {
   line-height: 1.75;
   color: #333;
   background-image: none;
-  border: 1px solid #E4E4E4;
+  border: 1px solid #e4e4e4;
   word-break: normal;
 }
 

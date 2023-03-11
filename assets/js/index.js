@@ -4,48 +4,70 @@ const countryTimeDisplay = document.getElementById("country-time");
 
 const dateDisplay = document.getElementById("formated-date");
 
-const getUserCountry = () => {
-  displayLoading();
-  fetch("https://ipapi.co/json/")
-    .then(function (response) {
-      return response.json();
-    })
-    .then((result) => {
-      calcTime(result?.timezone);
-      const countryName = result?.country_name;
-      const option = document.createElement("option");
-      option.value = result?.timezone;
-      option.text = `${countryName} (Current Location)`;
-      option.selected = true;
-      countryList.appendChild(option);
-      hideLoading();
-    })
-    .catch((error) => {
-      console.log("error", error);
-      hideLoading();
-    });
+const getUserCountry = async () => {
+  try {
+    toggleLoading(true);
+    const response = await fetch("https://ipapi.co/json/");
+    const result = await response.json();
+    calcTime(result?.timezone);
+    const countryName = result?.country_name;
+    const option = new Option(
+      `${countryName} (Current Location)`,
+      result?.timezone,
+      true,
+      true
+    );
+    countryList.add(option);
+  } catch (error) {
+    console.log("error", error);
+  } finally {
+    toggleLoading(false);
+  }
 };
 
-async function getCountries() {
-  const response = await fetch("https://restcountries.com/v3.1/all");
-  if (response && response?.status === 200 && response?.statusText === "OK") {
-    const countries = await response.json();
-
-    countries.forEach((country) => {
-      const option = document.createElement("option");
-      option.value = country?.timezones[0];
-      option.text = country?.name?.common;
-      countryList.appendChild(option);
-    });
+const getCountries = async () => {
+  try {
+    const response = await fetch("https://restcountries.com/v3.1/all");
+    if (response && response?.status === 200 && response?.statusText === "OK") {
+      const countries = await response.json();
+      countries.forEach((country) => {
+        const option = new Option(country?.name?.common, country?.timezones[0]);
+        countryList.add(option);
+      });
+    }
+  } catch (error) {
+    console.log("error", error);
+  } finally {
+    getUserCountry();
   }
-  getUserCountry();
-}
+};
+
+getCountries();
 
 function calcTime() {
   const timezone = document.getElementById("country-list").value;
 
+  if (timezone === "") {
+    countryTimeDisplay.innerHTML = "Kindly select the location.";
+    dateDisplay.innerHTML = "";
+    return;
+  }
+
+  const date = new Date();
+  const options = {
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+  };
+
+  const formatedDate = {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  };
+
   if (timezone === "UTC") {
-    const date = new Date();
     const countryTime = date.toUTCString(timezone);
 
     const modifiedDate = new Date(countryTime);
@@ -53,117 +75,49 @@ function calcTime() {
     countryTimeDisplay.innerHTML = `${modifiedDate.getUTCHours()}:${modifiedDate.getUTCMinutes()}:${modifiedDate.getUTCSeconds()} ${
       modifiedDate.getUTCHours() >= 12 ? "PM" : "AM"
     }`;
-    countryTimeDisplay.style.color = "#ffffff";
-    countryTimeDisplay.style.fontSize = "45px";
-    countryTimeDisplay.style.fontWeight = 700;
-
-    const formatedDate = {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    };
 
     dateDisplay.innerHTML = new Intl.DateTimeFormat(
       "en-US",
       formatedDate
     ).format(modifiedDate);
-    dateDisplay.style.color = "#ffffff";
-    dateDisplay.style.fontSize = "25px";
-    dateDisplay.style.fontWeight = 700;
   } else if (timezone?.includes("/")) {
     const countryTime = new Date();
-    const options = {
-      hour: "numeric",
-      minute: "numeric",
-      second: "numeric",
-      timeZone: timezone,
-    };
 
-    const formatedDate = {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-      timeZone: timezone,
-    };
+    options.timeZone = timezone;
+    formatedDate.timeZone = timezone;
 
     const formattedTime = countryTime.toLocaleString("en-US", options);
-
     const date = countryTime.toLocaleString("en-US", formatedDate);
 
     countryTimeDisplay.innerHTML = `${formattedTime}`;
-    countryTimeDisplay.style.color = "#ffffff";
-    countryTimeDisplay.style.fontSize = "45px";
-    countryTimeDisplay.style.fontWeight = 700;
-
     dateDisplay.innerHTML = `${date}`;
-    dateDisplay.style.color = "#ffffff";
-    dateDisplay.style.fontSize = "25px";
-    dateDisplay.style.fontWeight = 700;
-  } else if (timezone === "" && loader.classList.remove("display")) {
-    countryTimeDisplay.innerHTML = "Kindly select the location.";
-    countryTimeDisplay.style.fontSize = "25px";
-    dateDisplay.innerHTML = "";
   } else {
-    let result = timezone.slice(3, 6);
+    let result = timezone?.slice(3, 6);
     if (result) {
-      const d = new Date();
-
-      const utc = d.getTime() + d.getTimezoneOffset() * 60000;
+      const utc = date.getTime() + date.getTimezoneOffset() * 60000;
 
       const nd = new Date(utc + 3600000 * result);
 
       const countryTime = new Date(nd);
-      const options = {
-        hour: "numeric",
-        minute: "numeric",
-        second: "numeric",
-      };
-
-      const formatedDate = {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      };
 
       const formattedTime = countryTime.toLocaleString("en-US", options);
-
-      const date = countryTime.toLocaleString("en-US", formatedDate);
+      const modifiedDate = countryTime.toLocaleString("en-US", formatedDate);
 
       countryTimeDisplay.innerHTML = `${formattedTime}`;
-      countryTimeDisplay.style.color = "#ffffff";
-      countryTimeDisplay.style.fontSize = "45px";
-      countryTimeDisplay.style.fontWeight = 700;
-
-      dateDisplay.innerHTML = `${date}`;
-      dateDisplay.style.color = "#ffffff";
-      dateDisplay.style.fontSize = "25px";
-      dateDisplay.style.fontWeight = 700;
+      dateDisplay.innerHTML = `${modifiedDate}`;
     }
   }
 }
 
-countryList.addEventListener("change", function () {
-  setTimeout(() => {
-    calcTime();
-  }, 1000);
-});
-
+countryList.addEventListener("change", calcTime);
 setInterval(calcTime, 1000);
 
-getCountries();
-
 const loader = document.querySelector("#loading");
-
-function displayLoading() {
-  loader.classList.add("display");
-  setTimeout(() => {
+const toggleLoading = async (show) => {
+  if (show) {
+    loader.classList.add("display");
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  } else {
     loader.classList.remove("display");
-  }, 1000);
-}
-
-function hideLoading() {
-  loader.classList.remove("display");
-}
+  }
+};
