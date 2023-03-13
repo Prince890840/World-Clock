@@ -4,12 +4,21 @@ const countryTimeDisplay = document.getElementById("country-time");
 
 const dateDisplay = document.getElementById("formated-date");
 
-const getUserCountry = async () => {
+const loader = document.querySelector("#loading");
+const toggleLoading = async (show) => {
+  if (show) {
+    loader.classList.add("display");
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  } else {
+    loader.classList.remove("display");
+  }
+};
+
+(async () => {
   try {
     toggleLoading(true);
     const response = await fetch("https://ipapi.co/json/");
     const result = await response.json();
-    calcTime(result?.timezone);
     const countryName = result?.country_name;
     const option = new Option(
       `${countryName} (Current Location)`,
@@ -18,31 +27,13 @@ const getUserCountry = async () => {
       true
     );
     countryList.add(option);
+    calcTime(result?.timezone);
   } catch (error) {
     console.log("error", error);
   } finally {
     toggleLoading(false);
   }
-};
-
-const getCountries = async () => {
-  try {
-    const response = await fetch("https://restcountries.com/v3.1/all");
-    if (response && response?.status === 200 && response?.statusText === "OK") {
-      const countries = await response.json();
-      countries.forEach((country) => {
-        const option = new Option(country?.name?.common, country?.timezones[0]);
-        countryList.add(option);
-      });
-    }
-  } catch (error) {
-    console.log("error", error);
-  } finally {
-    getUserCountry();
-  }
-};
-
-getCountries();
+})();
 
 function calcTime() {
   const timezone = document.getElementById("country-list").value;
@@ -112,12 +103,17 @@ function calcTime() {
 countryList.addEventListener("change", calcTime);
 setInterval(calcTime, 1000);
 
-const loader = document.querySelector("#loading");
-const toggleLoading = async (show) => {
-  if (show) {
-    loader.classList.add("display");
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-  } else {
-    loader.classList.remove("display");
+(async () => {
+  try {
+    const response = await fetch("https://restcountries.com/v3.1/all");
+    if (response && response?.status === 200 && response?.statusText === "OK") {
+      const countries = await response.json();
+      countries.forEach((country) => {
+        const option = new Option(country?.name?.common, country?.timezones[0]);
+        countryList.add(option);
+      });
+    }
+  } catch (error) {
+    console.log("error", error);
   }
-};
+})();
