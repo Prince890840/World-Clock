@@ -8,7 +8,6 @@ const loader = document.querySelector("#loading");
 const toggleLoading = async (show) => {
   if (show) {
     loader.classList.add("display");
-    await new Promise((resolve) => setTimeout(resolve, 1000));
   } else {
     loader.classList.remove("display");
   }
@@ -27,13 +26,16 @@ const toggleLoading = async (show) => {
       true
     );
     countryList.add(option);
-    calcTime(result?.timezone);
+    calcTime();
   } catch (error) {
     console.log("error", error);
   } finally {
     toggleLoading(false);
   }
 })();
+
+countryList.addEventListener("change", calcTime);
+setInterval(calcTime, 1000);
 
 function calcTime() {
   const timezone = document.getElementById("country-list").value;
@@ -99,9 +101,6 @@ function calcTime() {
     }
   }
 }
-
-countryList.addEventListener("change", calcTime);
-setInterval(calcTime, 1000);
 
 (async () => {
   try {

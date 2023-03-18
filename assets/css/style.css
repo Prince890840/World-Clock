@@ -154,3 +154,31 @@ select::-ms-expand {
     transform: rotate(360deg);
   }
 }
+
+@media screen and (min-width: 320px) and (max-width: 480px) {
+  .wrapper {
+    max-width: 600px;
+  }
+
+  .select-wrapper {
+    max-width: 300px;
+  }
+
+  #loading {
+    margin: auto 0% auto auto;
+  }
+}
+
+@media screen and (min-width: 481px) and (max-width: 768px) {
+  .wrapper {
+    max-width: 850px;
+  }
+
+  .select-wrapper {
+    max-width: 400px;
+  }
+
+  #loading {
+    margin: auto 10% auto auto;
+  }
+}
