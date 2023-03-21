@@ -1,3 +1,4 @@
+"use strict";
 const countryList = document.getElementById("country-list");
 
 const countryTimeDisplay = document.getElementById("country-time");
@@ -26,7 +27,7 @@ const toggleLoading = async (show) => {
       true
     );
     countryList.add(option);
-    calcTime();
+    startSetInterval();
   } catch (error) {
     console.log("error", error);
   } finally {
@@ -35,7 +36,6 @@ const toggleLoading = async (show) => {
 })();
 
 countryList.addEventListener("change", calcTime);
-setInterval(calcTime, 1000);
 
 function calcTime() {
   const timezone = document.getElementById("country-list").value;
@@ -102,15 +102,29 @@ function calcTime() {
   }
 }
 
+function noDelaySetInterval(func, interval) {
+  func();
+  return setInterval(func, interval);
+}
+
+function startSetInterval() {
+  noDelaySetInterval(calcTime, 1000);
+}
+
 (async () => {
   try {
     const response = await fetch("https://restcountries.com/v3.1/all");
     if (response && response?.status === 200 && response?.statusText === "OK") {
       const countries = await response.json();
-      countries.forEach((country) => {
-        const option = new Option(country?.name?.common, country?.timezones[0]);
-        countryList.add(option);
-      });
+      countries &&
+        countries?.length > 0 &&
+        countries?.forEach((country) => {
+          const option = new Option(
+            country?.name?.common,
+            country?.timezones[0]
+          );
+          countryList.add(option);
+        });
     }
   } catch (error) {
     console.log("error", error);

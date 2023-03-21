@@ -32,3 +32,31 @@ approach 2:- (get the time from timezone offsets)
 moment().utcOffset("UTC+02:00").format("YYYY-MM-DD HH:mm");
 
 -> apply the approach rather than moment package use Date Object.
+
+Topic:- How to execute setInterval function without delay for the first time in JavaScript ?
+
+----------------------------------------------------------------------------------------------
+The setInterval() method always invokes the function after the delay for the first time using two approaches:
+
+Method 1: Calling the function once before executing setInterval: The function can simply be invoked once before using the setInterval function. This will execute the function once immediately and then the setInterval() function can be set with the required callback.
+A new function is created which encloses the invoking of the function first and then calls the setInterval() function next. This will help to simulate the setInterval() function without a delay for the first time.
+
+-> https://www.geeksforgeeks.org/how-to-execute-setinterval-function-without-delay-for-the-first-time-in-javascript/
+
+2nd way to immediately trigger setInterval
+function gfg() {
+    document.write("Hello! world"+ " for the animals.<br>");
+    return setInterval(gfg, 3000);
+}
+// Function call
+gfg();
+
+3rd way - The simplest way is calling the gfg() first and then starting the setInterval’s cycle of execution.
+
+function gfg() {
+    document.write("Hello! world"+ " for the animals.<br>");
+    return setInterval(gfg, 3000);
+}
+   
+gfg();
+setInterval(gfg, 3000);
