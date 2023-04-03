@@ -102,13 +102,9 @@ function calcTime() {
   }
 }
 
-function noDelaySetInterval(func, interval) {
-  func();
-  return setInterval(func, interval);
-}
-
 function startSetInterval() {
-  noDelaySetInterval(calcTime, 1000);
+  calcTime();
+  return setInterval(calcTime, 1000);
 }
 
 (async () => {
